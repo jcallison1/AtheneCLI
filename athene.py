@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 
+# AtheneCLI version 0.1
+
 import getpass
+import sys
 import time
 import requests
 import html
@@ -138,6 +141,8 @@ def load_initial_response(http: requests.Session) -> InitialResponse:
 		assignment_id = input_assignment_id()
 		auth_token = input_auth_token()
 		
+		print()
+		
 		local_config = LocalConfig(
 			assignment_id=assignment_id,
 			auth_token=auth_token
@@ -158,6 +163,7 @@ def load_initial_response(http: requests.Session) -> InitialResponse:
 		print(TERM_BOLD + "Session timeout" + TERM_RESET)
 		
 		auth_token = input_auth_token()
+		print()
 		
 		local_config = local_config._replace(auth_token=auth_token)
 		write_local_config(local_config)
@@ -166,24 +172,31 @@ def load_initial_response(http: requests.Session) -> InitialResponse:
 		athene_res = send_athene_request(http, assignment_url)
 		
 		if athene_res.session_timeout:
-			raise Exception("Repeated athene session timeout, something is wrong")
+			print("Repeated athene session timeout")
+			sys.exit(0)
 	
 	return InitialResponse(athene_res, assignment_id, assignment_url)
 
 def input_assignment_id() -> str:
-	print("The assignment id can be taken from the URL of the Athene page.")
-	print("You won't have to enter the id again for this directory.")
+	# print("The assignment id can be taken from the URL of the Athene page.")
+	# print("You won't have to enter the id again for this directory.")
 	assign_id = input(TERM_BOLD + "Enter Assignment ID: " + TERM_RESET).strip()
-	print()
+	# print()
+	
+	if not assign_id:
+		sys.exit(0)
 	
 	return assign_id
 
 def input_auth_token() -> str:
-	print("Your Athene token can be gotten by using your browser's dev tools to")
-	print("find the PHPSESSID cookie on the Athene page.")
-	print("You won't have to enter the token again for this directory unless it expires.")
-	auth_token = getpass.getpass(TERM_BOLD + "Enter Athene Token: " + TERM_RESET)
-	print()
+	# print("Your Athene token can be gotten by using your browser's dev tools to")
+	# print("find the PHPSESSID cookie on the Athene page.")
+	# print("You won't have to enter the token again for this directory unless it expires.")
+	auth_token = getpass.getpass(TERM_BOLD + "Enter Athene Token (not echoed): " + TERM_RESET)
+	# print()
+	
+	if not auth_token:
+		sys.exit(0)
 	
 	return auth_token
 
