@@ -12,5 +12,7 @@ chrome.runtime.onMessage.addListener(
 			// Return true so that sendResponse stays valid after the callback ends
 			return true;
 		}
+		
+		return false;
 	}
 );

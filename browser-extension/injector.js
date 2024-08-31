@@ -23,6 +23,9 @@ if (urlMatch !== null) {
 	addCopyLink("Click to copy assignment id", assignmentId);
 
 	(async () => {
+		// HTTP-Only cookies can only be accessed using the browser's cookies API,
+		//  and the cookies API can only be used in a background script. So I have to
+		//  send a message to the background script to have it fetch the cookie.
 		const response = await chrome.runtime.sendMessage({ message: "get_athene_token" });
 		
 		if (response !== undefined) {
