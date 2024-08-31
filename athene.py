@@ -52,6 +52,8 @@ def subcommand_submit(args, http: requests.Session):
 	initial_res = load_initial_response(http)
 	athene_res = initial_res.athene_res
 	
+	print()
+	
 	if len(args.files) != len(athene_res.file_upload_slots):
 		slot_names = ", ".join(slot.name for slot in athene_res.file_upload_slots)
 		
@@ -101,6 +103,7 @@ def subcommand_status(args, http: requests.Session):
 	if athene_res.pending:
 		print("Submission is still being graded.")
 	elif athene_res.results is not None:
+		print()
 		print_submission_results(athene_res.results)
 	else:
 		print("No submissions yet.")
@@ -140,9 +143,7 @@ def load_initial_response(http: requests.Session) -> InitialResponse:
 	if local_config is None:
 		assignment_id = input_assignment_id()
 		auth_token = input_auth_token()
-		
-		print()
-		
+				
 		local_config = LocalConfig(
 			assignment_id=assignment_id,
 			auth_token=auth_token
@@ -163,7 +164,6 @@ def load_initial_response(http: requests.Session) -> InitialResponse:
 		print(TERM_BOLD + "Session timeout" + TERM_RESET)
 		
 		auth_token = input_auth_token()
-		print()
 		
 		local_config = local_config._replace(auth_token=auth_token)
 		write_local_config(local_config)
