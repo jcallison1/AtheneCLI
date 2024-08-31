@@ -1,0 +1,29 @@
+{
+	"manifest_version": 3,
+	"name": "Athene CLI Extension",
+	"description": "Makes copying the assignment ID and auth token from Athene pages easier.",
+	"version": "0.1",
+	"browser_specific_settings": {
+		"gecko": {
+			"id": "athene-cli@jcallison1.github.io"
+		}
+	},
+	"permissions": [
+		"cookies",
+		"scripting"
+	],
+	"host_permissions": [
+		"*://athenecurricula.org/"
+	],
+	"background": {
+		"service_worker": "background.js",
+		"scripts": ["background.js"]
+	},
+	"content_scripts": [
+		{
+			"js": ["injector.js"],
+			"matches": ["*://athenecurricula.org/problem/*"],
+			"all_frames": true
+		}
+	]
+}
