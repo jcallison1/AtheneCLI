@@ -1,9 +1,10 @@
 chrome.runtime.onMessage.addListener(
 	(request, sender, sendResponse) => {
-		if (request?.message === "get_athene_token") {
+		if (request?.message === "get_athene_token" && sender.tab) {
 			chrome.cookies.get({
 				name: "PHPSESSID",
-				url: "https://athenecurricula.org/"
+				url: "https://athenecurricula.org/",
+				storeId: sender.tab.cookieStoreId,
 			})
 			.then((cookie) => {
 				sendResponse(cookie?.value);
