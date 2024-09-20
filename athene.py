@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# AtheneCLI version 0.1
+# AtheneCLI version 0.2
 
 import getpass
 import sys
@@ -54,6 +54,10 @@ def subcommand_submit(args, http: requests.Session):
 	
 	print()
 	
+	if athene_res.pending:
+		print("Submission is still being graded.")
+		return
+	
 	if len(args.files) != len(athene_res.file_upload_slots):
 		slot_names = ", ".join(slot.name for slot in athene_res.file_upload_slots)
 		
@@ -72,7 +76,7 @@ def subcommand_submit(args, http: requests.Session):
 	last_time = start_time
 	
 	while True:
-		print(f"\rWaiting for Athene to grade submission... {int(time.monotonic() - start_time)}s", end="", flush=True)
+		print(f"\rWaiting for Athene to grade submission... {format_duration(int(time.monotonic() - start_time))} ", end="", flush=True)
 		
 		time.sleep(1)
 		
@@ -218,6 +222,12 @@ def send_athene_request(http: requests.Session, assignment_url: str, **kargs) ->
 	res = http.get(assignment_url, **kargs)
 	
 	return parse_athene_response(res.text)
+
+def format_duration(secs: int) -> str:
+	if secs < 60:
+		return f"{secs}s"
+	else:
+		return f"{secs // 60}m {secs % 60}s"
 
 class LocalConfig(NamedTuple):
 	assignment_id: str
