@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# AtheneCLI version 0.2
+# AtheneCLI version 0.3
 
 import getpass
 import sys
@@ -31,6 +31,9 @@ def parse_arguments():
 	subparsers.add_parser("status", parents=[assignment_options],
 		help="Fetches the status of an Athene assignment.")
 	
+	subparsers.add_parser("clear", parents=[],
+		help="Clears cached Athene information for the current directory.")
+	
 	return root_parser.parse_args()
 
 def main():
@@ -41,6 +44,8 @@ def main():
 			subcommand_submit(args, http)
 		elif args.subcommand == "status":
 			subcommand_status(args, http)
+		elif args.subcommand == "clear":
+			subcommand_clear()
 
 TERM_RESET = "\033[0m"
 TERM_BOLD = "\033[1m"
@@ -111,6 +116,9 @@ def subcommand_status(args, http: requests.Session):
 		print_submission_results(athene_res.results)
 	else:
 		print("No submissions yet.")
+
+def subcommand_clear():
+	local_config_path().unlink(missing_ok=True)
 
 class CodeBlock(NamedTuple):
 	title: str
