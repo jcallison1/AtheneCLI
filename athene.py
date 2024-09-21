@@ -147,13 +147,6 @@ def load_initial_response(http: requests.Session) -> InitialResponse:
 	if local_config is None:
 		assignment_id = input_assignment_id()
 		auth_token = input_auth_token()
-				
-		local_config = LocalConfig(
-			assignment_id=assignment_id,
-			auth_token=auth_token
-		)
-		
-		write_local_config(local_config)
 	else:
 		assignment_id = local_config.assignment_id
 		auth_token = local_config.auth_token
@@ -165,19 +158,27 @@ def load_initial_response(http: requests.Session) -> InitialResponse:
 	athene_res = send_athene_request(http, assignment_url)
 	
 	if athene_res.session_timeout:
-		print(TERM_BOLD + "Session timeout" + TERM_RESET)
-		
-		auth_token = input_auth_token()
-		
-		local_config = local_config._replace(auth_token=auth_token)
-		write_local_config(local_config)
-		
-		http.cookies.set("PHPSESSID", auth_token, domain="athenecurricula.org")
-		athene_res = send_athene_request(http, assignment_url)
-		
-		if athene_res.session_timeout:
-			print("Repeated athene session timeout")
+		if local_config is None:
+			print("Either session timed out or invalid session token/assignment ID")
 			sys.exit(0)
+		else:
+			print("Session timeout")
+			
+			auth_token = input_auth_token()
+						
+			http.cookies.set("PHPSESSID", auth_token, domain="athenecurricula.org")
+			athene_res = send_athene_request(http, assignment_url)
+			
+			if athene_res.session_timeout:
+				print("Repeated athene session timeout")
+				sys.exit(0)
+	
+	local_config = LocalConfig(
+		assignment_id=assignment_id,
+		auth_token=auth_token
+	)
+	
+	write_local_config(local_config)
 	
 	return InitialResponse(athene_res, assignment_id, assignment_url)
 
