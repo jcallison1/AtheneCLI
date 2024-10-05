@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# AtheneCLI version 0.3
+# AtheneCLI version 0.4
 
 import getpass
 import sys
@@ -16,8 +16,8 @@ from typing import NamedTuple
 
 def parse_arguments():
 	assignment_options = argparse.ArgumentParser(add_help=False)
-	# assignment_options.add_argument("-i", "--id",
-	# 	help="Athene assignment id.")
+	assignment_options.add_argument("-i", "--id",
+		help="Athene assignment id.")
 	
 	root_parser = argparse.ArgumentParser()
 	subparsers = root_parser.add_subparsers(dest="subcommand", required=True)
@@ -54,7 +54,7 @@ TERM_GREEN = "\033[32m"
 TERM_INVERT = "\033[7m"
 
 def subcommand_submit(args, http: requests.Session):
-	initial_res = load_initial_response(http)
+	initial_res = load_initial_response(http, args.id)
 	athene_res = initial_res.athene_res
 	
 	print()
@@ -107,7 +107,7 @@ def subcommand_submit(args, http: requests.Session):
 	print_submission_results(athene_res.results)
 
 def subcommand_status(args, http: requests.Session):
-	athene_res = load_initial_response(http).athene_res
+	athene_res = load_initial_response(http, args.id).athene_res
 	
 	if athene_res.pending:
 		print("Submission is still being graded.")
@@ -149,14 +149,14 @@ class InitialResponse(NamedTuple):
 	assignment_id: str
 	assignment_url: str
 
-def load_initial_response(http: requests.Session) -> InitialResponse:
+def load_initial_response(http: requests.Session, override_assignment_id: str | None = None) -> InitialResponse:
 	local_config = load_local_config()
 	
 	if local_config is None:
-		assignment_id = input_assignment_id()
+		assignment_id = override_assignment_id or input_assignment_id()
 		auth_token = input_auth_token()
 	else:
-		assignment_id = local_config.assignment_id
+		assignment_id = override_assignment_id or local_config.assignment_id
 		auth_token = local_config.auth_token
 	
 	assignment_url = f"https://athenecurricula.org/problem/{assignment_id}/"
